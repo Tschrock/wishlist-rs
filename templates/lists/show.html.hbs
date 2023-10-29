@@ -1,0 +1,33 @@
+{{#*inline "body"}}
+
+<div class="p-4">
+
+    <a href="/lists">Back to lists</a>
+    <h2>{{list.title}}</h2>
+    <p>{{list.description}}</p>
+    <div class="mb-3">
+        <a class="btn btn-primary mb-2" href="/lists/{{list.id}}/edit"><i class="bi bi-pencil"></i> Edit list</a>
+        <form action="/lists/{{list.id}}" method="POST">
+            <input type="hidden" name="_method" value="DELETE">
+            <button type="submit" class="btn btn-danger"><i class="bi bi-trash"></i> Delete list</button>
+        </form>
+    </div>
+    <h3>Items:</h3>
+    <div class="row row-cols-1 row-cols-md-4 g-4 mb-4">
+        {{#each items}}
+        <div class="col">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">{{title}}</h5>
+                    <p class="card-text">{{description}}</p>
+                    <a href="/lists/{{../list.id}}/items/{{id}}" class="card-link">View</a>
+                </div>
+            </div>
+        </div>
+        {{/each}}
+    </div>
+    <a href="/lists/{{list.id}}/items/new" class="btn btn-primary">Add an item</a>
+</div>
+
+{{/inline}}
+{{> imports/main}}

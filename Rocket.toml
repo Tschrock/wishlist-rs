@@ -1,0 +1,3 @@
+[default.databases.wishlists]
+# url = "sqlite:./wishlists.sqlite"
+url = "postgres://cyber:QCYYPRxYbfpYAs38WTtrWExm@localhost/wishlists"

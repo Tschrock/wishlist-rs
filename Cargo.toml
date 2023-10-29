@@ -1,0 +1,28 @@
+[package]
+name = "wishlist-rs"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+thiserror = "1.0.50"
+
+[dependencies.rocket]
+version = "=0.5.0-rc.3"
+features = ["json"]
+
+[dependencies.sqlx]
+version = "0.6"
+default-features = false
+features = ["any", "sqlite", "postgres", "macros", "migrate"]
+
+[dependencies.rocket_db_pools]
+version = "=0.1.0-rc.3"
+features = ["sqlx_sqlite"]
+
+[dependencies.rocket_dyn_templates]
+version = "=0.1.0-rc.3"
+features = ["handlebars"]
+
+[dependencies.validator]
+version = "0.16"
+features = ["derive"]

@@ -1,0 +1,46 @@
+{{#*inline "body"}}
+<div class="p-4">
+    <h2>New Item</h2>
+    <form action="/lists/{{list.id}}/items" method="POST">
+        {{#if error_message}}
+        <div class="alert alert-danger" role="alert">
+            {{error_message}}
+        </div>
+        {{/if}}
+        <div class="mb-3">
+            <label for="item-title" class="form-label">Title</label>
+            <input type="text" class="form-control {{#if errors.title}}is-invalid{{/if}}" id="item-title" name="title"
+                minlength="1" maxlength="256" value="{{item.title}}">
+            {{#if errors.title}}
+            <div class="invalid-feedback">
+                <ul>
+                    {{#each errors.title}}
+                    <li>{{this.message}}</li>
+                    {{/each}}
+                </ul>
+            </div>
+            {{/if}}
+        </div>
+        <div class="mb-3">
+            <label for="item-description" class="form-label">Description</label>
+            <textarea class="form-control {{#if errors.description}}is-invalid{{/if}}" id="item-description"
+                name="description" maxlength="4096" rows="4">{{item.description}}</textarea>
+            {{#if errors.description}}
+            <div class="invalid-feedback">
+                <ul>
+                    {{#each errors.description}}
+                    <li>{{this.message}}</li>
+                    {{/each}}
+                </ul>
+            </div>
+            {{/if}}
+        </div>
+        {{!-- Cancel button --}}
+        <a href="/lists/{{list.id}}" class="btn btn-secondary">Cancel</a>
+        {{!-- Submit button --}}
+        <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+</div>
+
+{{/inline}}
+{{> imports/main}}
