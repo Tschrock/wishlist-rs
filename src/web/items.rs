@@ -22,25 +22,26 @@ pub struct EditItem<'r> {
     pub description: &'r str,
 }
 
-#[get("/lists/<list_id>/items")]
+#[get("/lists/<list_key>/items")]
 pub async fn index(
     mut db: Connection<WishlistDb>,
-    list_id: i64,
+    list_key: &str,
 ) -> Result<Template, WebError<Template>> {
-    let list = List::find_by_id(&mut db, list_id)
+    let list = List::find_by_key(&mut db, list_key)
         .await?
         .ok_or(WebError::NotFound(Template::render("error/404", ())))?;
 
-    let items = Item::all_by_list(&mut db, list_id)
+    let items = Item::all_by_list(&mut db, list.id)
         .await
         .unwrap_or(vec![])
         .into_iter()
         .map(|item| {
+            let link = uri!(show(&list.key, item.id)).to_string();
             context! {
                 id: item.id,
                 title: item.title,
                 description: item.description,
-                link: uri!(show(list.id, item.id)).to_string(),
+                link,
             }
         })
         .collect::<Vec<_>>();
@@ -51,30 +52,30 @@ pub async fn index(
     ))
 }
 
-#[get("/lists/<list_id>/items/new")]
+#[get("/lists/<list_key>/items/new")]
 pub async fn new(
     mut db: Connection<WishlistDb>,
-    list_id: i64,
+    list_key: &str,
 ) -> Result<Template, WebError<Template>> {
-    let list = List::find_by_id(&mut db, list_id)
+    let list = List::find_by_key(&mut db, list_key)
         .await?
         .ok_or(WebError::NotFound(Template::render("error/404", ())))?;
 
     Ok(Template::render("items/new", context! { list }))
 }
 
-#[post("/lists/<list_id>/items", format = "form", data = "<item>")]
+#[post("/lists/<list_key>/items", format = "form", data = "<item>")]
 pub async fn create(
     mut db: Connection<WishlistDb>,
-    list_id: i64,
+    list_key: &str,
     item: Form<CreateItem<'_>>,
 ) -> Result<Redirect, WebError<Template>> {
-    let list = List::find_by_id(&mut db, list_id)
+    let list = List::find_by_key(&mut db, list_key)
         .await?
         .ok_or(WebError::NotFound(Template::render("error/404", ())))?;
 
-    match Item::create(&mut db, list_id, item.title, item.description).await {
-        Ok(item) => Ok(Redirect::to(uri!(web::items::show(list.id, item.id)))),
+    match Item::create(&mut db, list.id, item.title, item.description).await {
+        Ok(item) => Ok(Redirect::to(uri!(web::items::show(list.key, item.id)))),
         Err(DataError::Validation(e)) => Err(WebError::Invalid(Template::render(
             "items/new",
             context! {
@@ -101,13 +102,13 @@ pub async fn create(
     }
 }
 
-#[get("/lists/<list_id>/items/<id>", rank = 2)]
+#[get("/lists/<list_key>/items/<id>", rank = 2)]
 pub async fn show(
     mut db: Connection<WishlistDb>,
-    list_id: i64,
+    list_key: &str,
     id: i64,
 ) -> Result<Template, WebError<Template>> {
-    let list = List::find_by_id(&mut db, list_id)
+    let list = List::find_by_key(&mut db, list_key)
         .await?
         .ok_or(WebError::NotFound(Template::render("error/404", ())))?;
 
@@ -116,13 +117,13 @@ pub async fn show(
     Ok(Template::render("items/show", context! { list, item }))
 }
 
-#[get("/lists/<list_id>/items/<id>/edit")]
+#[get("/lists/<list_key>/items/<id>/edit")]
 pub async fn edit(
     mut db: Connection<WishlistDb>,
-    list_id: i64,
+    list_key: &str,
     id: i64,
 ) -> Result<Template, WebError<Template>> {
-    let list = List::find_by_id(&mut db, list_id)
+    let list = List::find_by_key(&mut db, list_key)
         .await?
         .ok_or(WebError::NotFound(Template::render("error/404", ())))?;
 
@@ -131,14 +132,14 @@ pub async fn edit(
     Ok(Template::render("items/edit", context! { list, item }))
 }
 
-#[put("/lists/<list_id>/items/<id>", format = "form", data = "<item>")]
+#[put("/lists/<list_key>/items/<id>", format = "form", data = "<item>")]
 pub async fn update(
     mut db: Connection<WishlistDb>,
-    list_id: i64,
+    list_key: &str,
     id: i64,
     item: Form<EditItem<'_>>,
 ) -> Result<Redirect, WebError<Template>> {
-    let list = List::find_by_id(&mut db, list_id)
+    let list = List::find_by_key(&mut db, list_key)
         .await?
         .ok_or(WebError::NotFound(Template::render("error/404", ())))?;
 
@@ -150,7 +151,7 @@ pub async fn update(
         .update(&mut db, &item.title, &item.description)
         .await
     {
-        Ok(item) => Ok(Redirect::to(uri!(web::items::show(list.id, item.id)))),
+        Ok(item) => Ok(Redirect::to(uri!(web::items::show(list.key, item.id)))),
         Err(DataError::Validation(e)) => Err(WebError::Invalid(Template::render(
             "items/edit",
             context! {
@@ -179,13 +180,13 @@ pub async fn update(
     }
 }
 
-#[delete("/lists/<list_id>/items/<id>")]
+#[delete("/lists/<list_key>/items/<id>")]
 pub async fn destroy(
     mut db: Connection<WishlistDb>,
-    list_id: i64,
+    list_key: &str,
     id: i64,
 ) -> Result<Redirect, WebError<Template>> {
-    let list = List::find_by_id(&mut db, list_id)
+    let list = List::find_by_key(&mut db, list_key)
         .await?
         .ok_or(WebError::NotFound(Template::render("error/404", ())))?;
 
@@ -195,5 +196,5 @@ pub async fn destroy(
 
     item.destroy(&mut db).await?;
 
-    Ok(Redirect::to(uri!(web::items::index(list.id))))
+    Ok(Redirect::to(uri!(web::items::index(list.key))))
 }

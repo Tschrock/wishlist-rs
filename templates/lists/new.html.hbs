@@ -21,7 +21,7 @@
             </div>
             {{/if}}
         </div>
-        <div class="mb-3">
+        <div>
             <label for="list-description" class="form-label">Description</label>
             <textarea class="form-control {{#if errors.description}}is-invalid{{/if}}" id="list-description"
                 name="description" maxlength="4096" rows="4">{{list.description}}</textarea>
@@ -34,6 +34,10 @@
                 </ul>
             </div>
             {{/if}}
+        </div>
+        <div class="form-check form-switch mt-3 mb-3">
+            <input class="form-check-input" type="checkbox" role="switch" id="list-is-private" name="is_private" {{#if list.is_private}}checked{{/if}}>
+            <label class="form-check-label" for="list-is-private">Private list</label>
         </div>
         {{!-- Cancel button --}}
         <a href="/lists" class="btn btn-secondary">Cancel</a>

@@ -1,5 +1,7 @@
-mod list;
+mod image;
 mod item;
+mod list;
 
-pub use list::List;
+pub use image::Image;
 pub use item::Item;
+pub use list::List;

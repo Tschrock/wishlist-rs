@@ -2,6 +2,8 @@ use std::fs::OpenOptions;
 use std::io::Write;
 use std::path::Path;
 
+use rand::distributions::{Alphanumeric, DistString};
+
 pub fn ensure_file_exists(
     path: &Path,
     default_content: Option<&str>,
@@ -27,4 +29,8 @@ pub fn ensure_file_exists(
             }
         }
     }
+}
+
+pub fn random_key() -> String {
+    Alphanumeric.sample_string(&mut rand::thread_rng(), 16)
 }

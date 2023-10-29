@@ -5,9 +5,16 @@
     <a href="/lists">Back to lists</a>
     <h2>{{list.title}}</h2>
     <p>{{list.description}}</p>
+    <p>Private: {{#if list.is_private}}Yes{{else}}No{{/if}}</p>
+    {{#if list.is_private}}
+    <div class="alert alert-warning" role="alert">
+        This list is private and can only be viewed using it's unique URL.<br>
+        <b>If you loose this URL you will not be able to find this list again!</b>
+    </div>
+    {{/if}}
     <div class="mb-3">
-        <a class="btn btn-primary mb-2" href="/lists/{{list.id}}/edit"><i class="bi bi-pencil"></i> Edit list</a>
-        <form action="/lists/{{list.id}}" method="POST">
+        <a class="btn btn-primary mb-2" href="/lists/{{list.key}}/edit"><i class="bi bi-pencil"></i> Edit list</a>
+        <form action="/lists/{{list.key}}" method="POST">
             <input type="hidden" name="_method" value="DELETE">
             <button type="submit" class="btn btn-danger"><i class="bi bi-trash"></i> Delete list</button>
         </form>
@@ -20,13 +27,13 @@
                 <div class="card-body">
                     <h5 class="card-title">{{title}}</h5>
                     <p class="card-text">{{description}}</p>
-                    <a href="/lists/{{../list.id}}/items/{{id}}" class="card-link">View</a>
+                    <a href="/lists/{{../list.key}}/items/{{id}}" class="card-link">View</a>
                 </div>
             </div>
         </div>
         {{/each}}
     </div>
-    <a href="/lists/{{list.id}}/items/new" class="btn btn-primary">Add an item</a>
+    <a href="/lists/{{list.key}}/items/new" class="btn btn-primary">Add an item</a>
 </div>
 
 {{/inline}}

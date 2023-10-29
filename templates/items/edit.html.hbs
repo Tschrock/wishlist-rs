@@ -1,7 +1,7 @@
 {{#*inline "body"}}
 <div class="p-4">
     <h2>Edit Item</h2>
-    <form action="/lists/{{list.id}}/items/{{item.id}}" method="POST">
+    <form action="/lists/{{list.key}}/items/{{item.id}}" method="POST">
         {{#if error_message}}
         <div class="alert alert-danger" role="alert">
             {{error_message}}
@@ -37,7 +37,7 @@
             {{/if}}
         </div>
         {{!-- Cancel button --}}
-        <a href="/lists/{{list.id}}/items/{{item.id}}" class="btn btn-secondary">Cancel</a>
+        <a href="/lists/{{list.key}}/items/{{item.id}}" class="btn btn-secondary">Cancel</a>
         {{!-- Submit button --}}
         <button type="submit" class="btn btn-primary">Submit</button>
     </form>

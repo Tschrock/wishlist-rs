@@ -2,12 +2,12 @@
 
 <div class="p-4">
 
-    <a href="/lists/{{list.id}}">Back to list</a>
+    <a href="/lists/{{list.key}}">Back to list</a>
     <h2>{{item.title}}</h2>
     <p>{{item.description}}</p>
     <div class="mb-3">
-        <a class="btn btn-primary mb-2" href="/lists/{{list.id}}/items/{{item.id}}/edit"><i class="bi bi-pencil"></i> Edit item</a>
-        <form action="/lists/{{list.id}}/items/{{item.id}}" method="POST">
+        <a class="btn btn-primary mb-2" href="/lists/{{list.key}}/items/{{item.id}}/edit"><i class="bi bi-pencil"></i> Edit item</a>
+        <form action="/lists/{{list.key}}/items/{{item.id}}" method="POST">
             <input type="hidden" name="_method" value="DELETE">
             <button type="submit" class="btn btn-danger"><i class="bi bi-trash"></i> Delete item</button>
         </form>

@@ -2718,6 +2718,7 @@ dependencies = [
 name = "wishlist-rs"
 version = "0.1.0"
 dependencies = [
+ "rand",
  "rocket",
  "rocket_db_pools",
  "rocket_dyn_templates",
