@@ -16,11 +16,17 @@ pub struct Item {
     #[validate(range(min = 1, message = "Invalid list ID"))]
     pub list_id: i64,
     /// The title of the item.
-    #[validate(length(min = 2, max = 256, message = "Title must be between 2 and 256 characters"))]
+    #[validate(length(
+        min = 2,
+        max = 256,
+        message = "Title must be between 2 and 256 characters"
+    ))]
     pub title: String,
     /// A description of the item.
     #[validate(length(max = 4096, message = "Description must be less than 4096 characters"))]
     pub description: String,
+    pub created_at: chrono::NaiveDateTime,
+    pub updated_at: chrono::NaiveDateTime,
 }
 
 impl Default for Item {
@@ -28,15 +34,17 @@ impl Default for Item {
         Self {
             id: 0,
             list_id: 0,
-            title: "".to_string(),
-            description: "".to_string(),
+            title: String::default(),
+            description: String::default(),
+            created_at: chrono::NaiveDateTime::default(),
+            updated_at: chrono::NaiveDateTime::default(),
         }
     }
 }
 
 impl Item {
     /// Shorthand for `item::new(...).save(conn)`.
-    /// 
+    ///
     /// Creates a new item and saves it to the database, returning the new item.
     pub async fn create(
         conn: &mut Connection<WishlistDb>,
@@ -44,7 +52,9 @@ impl Item {
         title: &str,
         description: &str,
     ) -> Result<Item, DataError> {
-        Item::new(list_id, title.to_string(), description.to_string()).save(conn).await
+        Item::new(list_id, title.to_string(), description.to_string())
+            .save(conn)
+            .await
     }
 
     /// Creates a new item without saving it to the database.
@@ -54,6 +64,8 @@ impl Item {
             list_id,
             title,
             description,
+            created_at: chrono::NaiveDateTime::default(),
+            updated_at: chrono::NaiveDateTime::default(),
         }
     }
 
@@ -67,8 +79,11 @@ impl Item {
     }
 
     /// Returns all items in the database.
-    pub async fn all_by_list(conn: &mut Connection<WishlistDb>, list_id: i64) -> Result<Vec<Item>, sqlx::Error> {
-        sqlx::query_as(r#"SELECT id, list_id, title, description FROM items WHERE list_id = $1"#)
+    pub async fn all_by_list(
+        conn: &mut Connection<WishlistDb>,
+        list_id: i64,
+    ) -> Result<Vec<Item>, sqlx::Error> {
+        sqlx::query_as(r#"SELECT id, list_id, title, description, created_at, updated_at FROM items WHERE list_id = $1"#)
             .bind(list_id)
             .fetch_all(&mut **conn)
             .await
@@ -79,7 +94,7 @@ impl Item {
         conn: &mut Connection<WishlistDb>,
         id: i64,
     ) -> Result<Option<Item>, sqlx::Error> {
-        sqlx::query_as(r#"SELECT id, list_id, title, description FROM items WHERE id = $1"#)
+        sqlx::query_as(r#"SELECT id, list_id, title, description, created_at, updated_at FROM items WHERE id = $1"#)
             .bind(id)
             .fetch_optional(&mut **conn)
             .await
@@ -90,7 +105,7 @@ impl Item {
         &mut self,
         conn: &mut Connection<WishlistDb>,
         title: &str,
-        description: &str
+        description: &str,
     ) -> Result<Item, DataError> {
         self.title = title.to_string();
         self.description = description.to_string();
@@ -121,7 +136,11 @@ impl Item {
         self.validate()?;
 
         let item = sqlx::query_as(
-            r#"INSERT INTO items (list_id, title, description) VALUES ($1, $2, $3) RETURNING id, list_id, title, description"#,
+            r#"
+            INSERT INTO items (list_id, title, description, created_at, updated_at)
+            VALUES ($1, $2, $3, now(), now())
+            RETURNING id, list_id, title, description, created_at, updated_at
+        "#,
         )
         .bind(&self.list_id)
         .bind(&self.title)
@@ -136,7 +155,14 @@ impl Item {
         self.validate()?;
 
         let item = sqlx::query_as(
-            r#"UPDATE items SET list_id = $1,  title = $2, description = $3 WHERE id = $4 RETURNING id, list_id, title, description"#,
+            r#"
+            UPDATE items
+            SET list_id = $1, 
+                title = $2,
+                description = $3,
+                updated_at = now()
+            WHERE id = $4
+            RETURNING id, list_id, title, description, created_at, updated_at"#,
         )
         .bind(&self.list_id)
         .bind(&self.title)

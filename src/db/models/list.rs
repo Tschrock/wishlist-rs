@@ -26,6 +26,8 @@ pub struct List {
     /// A description of the list.
     #[validate(length(max = 4096, message = "Description must be less than 4096 characters"))]
     pub description: String,
+    pub created_at: chrono::NaiveDateTime,
+    pub updated_at: chrono::NaiveDateTime,
 }
 
 impl Default for List {
@@ -34,8 +36,10 @@ impl Default for List {
             id: 0,
             key: crate::util::random_key(),
             is_private: true,
-            title: "".to_string(),
-            description: "".to_string(),
+            title: String::default(),
+            description: String::default(),
+            created_at: chrono::NaiveDateTime::default(),
+            updated_at: chrono::NaiveDateTime::default(),
         }
     }
 }
@@ -63,6 +67,8 @@ impl List {
             is_private,
             title,
             description,
+            created_at: chrono::NaiveDateTime::default(),
+            updated_at: chrono::NaiveDateTime::default(),
         }
     }
 
@@ -77,9 +83,15 @@ impl List {
 
     /// Returns all public lists in the database.
     pub async fn all_public(conn: &mut Connection<WishlistDb>) -> Result<Vec<List>, sqlx::Error> {
-        sqlx::query_as(r#"SELECT id, key, is_private, title, description FROM lists WHERE is_private IS FALSE"#)
-            .fetch_all(&mut **conn)
-            .await
+        sqlx::query_as(
+            r#"
+            SELECT id, key, is_private, title, description, created_at, updated_at
+            FROM lists
+            WHERE is_private IS FALSE
+            "#,
+        )
+        .fetch_all(&mut **conn)
+        .await
     }
 
     /// Returns the list with the given Key, or `None` if no list with that Key exists.
@@ -87,10 +99,16 @@ impl List {
         conn: &mut Connection<WishlistDb>,
         key: &str,
     ) -> Result<Option<List>, sqlx::Error> {
-        sqlx::query_as(r#"SELECT id, key, is_private, title, description FROM lists WHERE key = $1"#)
-            .bind(key)
-            .fetch_optional(&mut **conn)
-            .await
+        sqlx::query_as(
+            r#"
+            SELECT id, key, is_private, title, description, created_at, updated_at
+            FROM lists
+            WHERE key = $1
+            "#,
+        )
+        .bind(key)
+        .fetch_optional(&mut **conn)
+        .await
     }
 
     /// Updates the list in the database, returning an updated copy of the list.
@@ -131,7 +149,11 @@ impl List {
         self.validate()?;
 
         let list = sqlx::query_as(
-            r#"INSERT INTO lists (key, is_private, title, description) VALUES ($1, $2, $3, $4) RETURNING id, key, is_private, title, description"#,
+            r#"
+            INSERT INTO lists (key, is_private, title, description, created_at, updated_at)
+            VALUES ($1, $2, $3, $4, now(), now())
+            RETURNING id, key, is_private, title, description, created_at, updated_at
+            "#,
         )
         .bind(&self.key)
         .bind(&self.is_private)
@@ -147,7 +169,15 @@ impl List {
         self.validate()?;
 
         let list = sqlx::query_as(
-            r#"UPDATE lists SET is_private = $1, title = $2, description = $3 WHERE id = $4 RETURNING id, key, is_private, title, description"#,
+            r#"
+            UPDATE lists
+            SET is_private = $1,
+                title = $2,
+                description = $3,
+                updated_at = now()
+            WHERE id = $4
+            RETURNING id, key, is_private, title, description, created_at, updated_at
+            "#,
         )
         .bind(&self.is_private)
         .bind(&self.title)

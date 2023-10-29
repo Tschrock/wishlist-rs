@@ -4,26 +4,15 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+chrono = { version = "0.4.31", features = ["serde"] }
 rand = "0.8.5"
+rocket = { version = "=0.5.0-rc.3", features = ["json"] }
+rocket_db_pools = { version = "=0.1.0-rc.3", features = ["sqlx_sqlite"] }
+rocket_dyn_templates = { version = "=0.1.0-rc.3", features = ["handlebars"] }
 thiserror = "1.0.50"
-
-[dependencies.rocket]
-version = "=0.5.0-rc.3"
-features = ["json"]
+validator = { version = "0.16", features = ["derive"] }
 
 [dependencies.sqlx]
 version = "0.6"
 default-features = false
-features = ["any", "sqlite", "postgres", "macros", "migrate"]
-
-[dependencies.rocket_db_pools]
-version = "=0.1.0-rc.3"
-features = ["sqlx_sqlite"]
-
-[dependencies.rocket_dyn_templates]
-version = "=0.1.0-rc.3"
-features = ["handlebars"]
-
-[dependencies.validator]
-version = "0.16"
-features = ["derive"]
+features = ["any", "sqlite", "postgres", "macros", "migrate", "chrono"]
