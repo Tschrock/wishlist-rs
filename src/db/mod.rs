@@ -58,4 +58,6 @@ pub enum DataError {
     Validation(#[from] ValidationErrors),
     #[error("Database error: {0}")]
     Sqlx(#[from] sqlx::Error),
+    #[error("Data error: {0}")]
+    Other(String),
 }

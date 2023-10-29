@@ -42,6 +42,9 @@ impl From<DataError> for ApiError {
         match e {
             DataError::Validation(e) => ApiError::Invalid(Json(e)),
             DataError::Sqlx(e) => e.into(),
+            DataError::Other(e) => ApiError::Internal(Json(ApiGenericError {
+                message: e.to_string(),
+            })),
         }
     }
 }

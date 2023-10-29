@@ -12,4 +12,6 @@ pub struct Image {
 
     /// If the image was fetched from an external source, the URL of that source.
     pub source_url: Option<String>,
+    pub created_at: chrono::NaiveDateTime,
+    pub updated_at: chrono::NaiveDateTime,
 }

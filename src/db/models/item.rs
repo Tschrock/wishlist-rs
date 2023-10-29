@@ -43,7 +43,7 @@ impl Default for Item {
 }
 
 impl Item {
-    /// Shorthand for `item::new(...).save(conn)`.
+    /// Shorthand for `Item::new(...).save(conn)`.
     ///
     /// Creates a new item and saves it to the database, returning the new item.
     pub async fn create(

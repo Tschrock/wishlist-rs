@@ -23,12 +23,13 @@ use db::WishlistDb;
 //--------------------
 
 #[get("/")]
-async fn web_index(mut db: Connection<WishlistDb>) -> Template {
+pub async fn web_index(mut db: Connection<WishlistDb>, user: Option<&'_ web::auth::LoggedInUser>) -> Template {
     Template::render(
         "index",
         context! {
             list_count: List::count(&mut db).await.unwrap_or(0),
-            item_count: Item::count(&mut db).await.unwrap_or(0)
+            item_count: Item::count(&mut db).await.unwrap_or(0),
+            user
         },
     )
 }
@@ -84,6 +85,19 @@ fn rocket() -> _ {
                 web::items::edit,
                 web::items::update,
                 web::items::destroy,
+                // Web Account
+                web::account::show,
+                web::account::show_2,
+                web::account::new,
+                web::account::new_2,
+                web::account::create,
+                web::account::create_2,
+                web::account::login,
+                web::account::login_2,
+                web::account::do_login,
+                web::account::do_login_2,
+                web::account::logout,
+                web::account::logout_2,
                 // API Lists
                 api::v1::lists::index,
                 api::v1::lists::create,

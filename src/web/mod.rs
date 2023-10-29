@@ -2,8 +2,10 @@ use rocket_dyn_templates::{context, Template};
 
 use crate::db::DataError;
 
+pub mod auth;
 pub mod items;
 pub mod lists;
+pub mod account;
 
 #[derive(Responder)]
 pub enum WebError<T> {
@@ -28,7 +30,9 @@ impl From<sqlx::Error> for WebError<Template> {
     fn from(e: sqlx::Error) -> Self {
         match e {
             sqlx::Error::RowNotFound => WebError::NotFound(Template::render("error/404", ())),
-            _ => WebError::Internal(Template::render("error/500", ())),
+            _ => WebError::Internal(Template::render("error/500", context! {
+                error_message: e.to_string(),
+            })),
         }
     }
 }
@@ -38,6 +42,7 @@ impl From<DataError> for WebError<String> {
         match e {
             DataError::Validation(e) => WebError::Invalid(e.to_string()),
             DataError::Sqlx(e) => e.into(),
+            DataError::Other(e) => WebError::Internal(e),
         }
     }
 }
@@ -53,6 +58,12 @@ impl From<DataError> for WebError<Template> {
                 },
             )),
             DataError::Sqlx(e) => e.into(),
+            DataError::Other(e) => WebError::Internal(Template::render(
+                "error/500",
+                context! {
+                    error_message: e,
+                },
+            )),
         }
     }
 }

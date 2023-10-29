@@ -34,3 +34,7 @@ pub fn ensure_file_exists(
 pub fn random_key() -> String {
     Alphanumeric.sample_string(&mut rand::thread_rng(), 16)
 }
+
+pub fn random_token() -> String {
+    Alphanumeric.sample_string(&mut rand::thread_rng(), 64)
+}

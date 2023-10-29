@@ -3,8 +3,13 @@
 <div class="text-center pt-3">
     <h1>Universal Wishlist</h1>
     <p>Tracking {{list_count}} lists with {{item_count}} items.</p>
-    <a href="/lists" class="btn btn-primary">View public lists</a>
-    <a href="/lists/new" class="btn btn-primary">Create a new list</a>
+    {{#if user}}
+        <a href="/lists" class="btn btn-primary">View public lists</a>
+        <a href="/lists/new" class="btn btn-primary">Create a new list</a>
+    {{else}}
+        <a href="/account/register" class="btn btn-primary">Register</a>
+        <a href="/login" class="btn btn-primary">Login</a>
+    {{/if}}
 </div>
 
 {{/inline}}

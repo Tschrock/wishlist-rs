@@ -1,0 +1,45 @@
+{{#*inline "body"}}
+<div class="p-4">
+    <h2>Login</h2>
+    <form action="/login" method="POST">
+        {{#if error_message}}
+        <div class="alert alert-danger" role="alert">
+            {{error_message}}
+        </div>
+        {{/if}}
+        <div class="mb-3">
+            <label for="login-username" class="form-label">Username</label>
+            <input type="text" class="form-control {{#if errors.username}}is-invalid{{/if}}" id="login-username"
+                name="username" minlength="1" maxlength="256" value="{{login.username}}">
+            {{#if errors.username}}
+            <div class="invalid-feedback">
+                <ul>
+                    {{#each errors.username}}
+                    <li>{{this.message}}</li>
+                    {{/each}}
+                </ul>
+            </div>
+            {{/if}}
+        </div>
+        <div class="mb-3">
+            <label for="login-password" class="form-label">Password</label>
+            <input type="password" class="form-control {{#if errors.password}}is-invalid{{/if}}" id="login-password"
+                name="password" minlength="1" maxlength="256" value="{{login.password}}">
+            {{#if errors.password}}
+            <div class="invalid-feedback">
+                <ul>
+                    {{#each errors.password}}
+                    <li>{{this.message}}</li>
+                    {{/each}}
+                </ul>
+            </div>
+            {{/if}}
+        </div>
+        <a href="/" class="btn btn-secondary">Cancel</a>
+        <a href="/account/register" class="btn btn-secondary">Register</a>
+        <button type="submit" class="btn btn-primary">Login</button>
+    </form>
+</div>
+
+{{/inline}}
+{{> imports/main}}
