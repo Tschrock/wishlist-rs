@@ -1,0 +1,12 @@
+# Web server configuration
+
+# Note, you can also supply options as an environment variable, for example:
+#   export ROCKET_DATABASES_WISHLISTS_URL="postgres://user:password@host:port/database"
+
+# For more information, see
+# - https://rocket.rs/v0.5-rc/guide/configuration/
+# - https://api.rocket.rs/v0.5-rc/rocket_db_pools/index.html#configuration
+
+[default]
+databases.wishlists.url = "sqlite:./wishlists.sqlite"
+# databases.wishlists.url = "postgres://user:password@host:port/database"

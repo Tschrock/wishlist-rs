@@ -1,13 +1,18 @@
 #[macro_use]
 extern crate rocket;
 
+use std::path::Path;
+
+use rocket::fairing;
 use rocket::fairing::AdHoc;
+use rocket::Rocket;
 use rocket_db_pools::Connection;
 use rocket_db_pools::Database;
 use rocket_dyn_templates::{context, Template};
 
 mod api;
 mod db;
+mod util;
 mod web;
 
 use db::models::{Item, List};
@@ -28,11 +33,32 @@ async fn web_index(mut db: Connection<WishlistDb>) -> Template {
     )
 }
 
+async fn default_config(mut rocket: Rocket<rocket::Build>) -> fairing::Result {
+    // Make sure the Rocket.toml file exists
+    match util::ensure_file_exists(
+        Path::new("./Rocket.toml"),
+        Some(include_str!("../Rocket.template.toml")),
+    ) {
+        Ok(created) => {
+            if created {
+                // Reload the config
+                rocket = rocket.configure(rocket::Config::figment());
+            }
+            Ok(rocket)
+        }
+        Err(e) => {
+            eprintln!("Error creating Rocket.toml: {}", e);
+            Err(rocket)
+        }
+    }
+}
+
 #[launch]
 fn rocket() -> _ {
     let figment = rocket::Config::figment();
 
     rocket::custom(figment)
+        .attach(AdHoc::try_on_ignite("Default Config", default_config))
         .attach(AdHoc::try_on_ignite("Default DB", db::default_db))
         .attach(WishlistDb::init())
         .attach(AdHoc::try_on_ignite("Migrations", db::run_migrations))
